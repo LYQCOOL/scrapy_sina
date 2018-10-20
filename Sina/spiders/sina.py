@@ -54,7 +54,7 @@ class SinaSpider(scrapy.Spider):
         item_loader.add_css('fa_bu_shi_jian', 'span.date::text')
         # item_loader.add_css('ping_lun_shu_liang', 'span.count em a:nth-child(1)::text')
         # item_loader.add_css('can_yu_ren_shu', 'span.count em a:nth-child(2)::text')
-        item_loader.add_xpath('wen_zhang_lai_yuan', '(//div[@class="date-source"/a/text)|(//div[@class="date-source"]/span[2]/text())')
+        item_loader.add_xpath('wen_zhang_lai_yuan', '(//div[@class="date-source"]/a/text())|(//div[@class="date-source"]/span[2]/text())|(//div[@class="date-source"]/span[2]/a/text())')
         item_loader.add_css('wen_zhang_zheng_wen', 'div.article ')
         item_loader.add_value('do_time', datetime.datetime.now())
         item_loader.add_value('zhan_dian', '新浪网')
