@@ -95,7 +95,7 @@ import sys
 import os
 BASE_DIR=os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0,os.path.join(BASE_DIR,'Sina'))
-MYSQL_HOST="localhost"
+MYSQL_HOST="47.106.211.59"
 MYSQL_DBNAME="news"
 MYSQL_USER="root"
 MYSQL_PASSWORD="112358"

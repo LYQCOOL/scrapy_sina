@@ -103,6 +103,7 @@ class SinaDownloaderMiddleware(object):
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
 
+
 class RandomUserAgentMiddleware(object):
     # 随机选择User-Agent
     def __init__(self, crawler):

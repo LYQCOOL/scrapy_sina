@@ -11,7 +11,7 @@ from scrapy.loader.processors import MapCompose, TakeFirst, Join
 from scrapy.loader import ItemLoader
 from w3lib.html import remove_tags
 
-from settings import SQL_DATETIME_FORMAT, SQL_DATE_FORMAT, SINA_FABUSHIJIAN_TYPE
+from Sina.settings import SQL_DATETIME_FORMAT, SQL_DATE_FORMAT, SINA_FABUSHIJIAN_TYPE
 
 
 class SinaItem(scrapy.Item):

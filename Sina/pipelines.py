@@ -6,6 +6,7 @@
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 import codecs
 import json
+import datetime
 
 from twisted.enterprise import adbapi
 import MySQLdb
@@ -13,6 +14,7 @@ import MySQLdb.cursors
 from scrapy.pipelines.images import ImagesPipeline
 from scrapy.exporters import JsonItemExporter
 
+from .settings import BASE_DIR
 
 
 class SinaPipeline(object):
@@ -52,13 +54,22 @@ class MysqlTwistedPipeline(object):
             # 处理异常
             query.addErrback(self.handle_error, item, spider)
         else:
-            print('item出错')
-
-
+            query = self.dbpool.runInteraction(self.do_insert_failurl, item)
+            query.addErrback(self.handle_error, item, spider)
 
     def handle_error(self, failure, item, spider):
-        print(failure)
-        print(item)
+        try:
+            query = self.dbpool.runInteraction(self.do_insert_failurl, item)
+        except Exception as e:
+            error_time = datetime.datetime.today().strftime("%Y_%m_%d")
+            with open(BASE_DIR + "/mysqlerrors/error_{0}.txt".format(error_time), 'a', encoding='utf-8') as f:
+                if "wen_zhang_wang_zhi" in item.keys():
+                    f.write('出错的文章网址:' + item['wen_zhang_wang_zhi'] + "\n" + "错误信息：" + str(failure) + "\n")
+                elif "ping_lun_zhujian" in item.keys():
+                    f.write('出错的评论主键:' + item['ping_lun_zhujian'] + "\n" + "错误信息：" + str(failure) + "\n")
+                else:
+                    f.write("不明的错误信息：" + str(failure)+"异常："+str(e))
+                f.close()
 
     def do_insert_content(self, cursor, item):
         # 执行具体的插入
@@ -68,4 +79,17 @@ class MysqlTwistedPipeline(object):
     def do_insert_comment(self, cursor, item):
         # 执行具体的插入
         insert_sql, params = item.get_insert_sql_comment()
+        cursor.execute(insert_sql, params)
+
+    def do_insert_failurl(self, cursor, item):
+        error_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        insert_sql = """
+        insert into logs(news_url,error_type,error_message,zhan_dian,error_time)
+        value(%s,%s,%s,%s,%s)"""
+        if "wen_zhang_zheng_wen" in item.keys():
+            params = (item['wen_zhang_wang_zhi'], 2, "文章内容相关信息获取丢失或出错" ,1, error_time)
+        elif "ping_lun_id" in item.keys():
+            params = (item['wen_zhang_wang_zhi'], 3, "文章评论相关信息获取丢失或出错",1, error_time)
+        else:
+            params=(item['wen_zhang_wang_zhi'],1,"数据库错误",1,error_time)
         cursor.execute(insert_sql, params)
